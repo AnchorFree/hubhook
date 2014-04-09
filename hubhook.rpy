@@ -15,12 +15,12 @@ from urlparse import urlparse
 class Hook(Resource):
     isLeaf = True
 
-    def render_GET(self, request):
-        log.msg('GET: {0!r}'.format(request))
-        return ''
-
     def render_POST(self, request):
-        p = json.loads(request.args['payload'][0])
+        """
+        Support both the old application/vnd.github.v3+form format and the new application/vnd.github.v3+json format
+        for webhooks.
+        """
+        p = json.loads(request.args['payload'][0]) if request.args else json.load(request.content)
         u = urlparse(p['repository']['url'])
         owner, repo_name = os.path.split(u.path)
 
