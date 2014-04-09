@@ -1,0 +1,43 @@
+import datetime
+import git
+import json
+import os
+import os.path
+from subprocess import call
+from twisted.web.resource import Resource
+from twisted.python import log
+from urlparse import urlparse
+
+
+# All repos are presumed to be checked out under /src/{reponame}
+# For interactions with origin, use ~/.ssh/{repname}_deploy_key
+
+class Hook(Resource):
+    isLeaf = True
+
+    def render_GET(self, request):
+        log.msg('GET: {0!r}'.format(request))
+        return ''
+
+    def render_POST(self, request):
+        p = json.loads(request.args['payload'][0])
+        u = urlparse(p['repository']['url'])
+        owner, repo_name = os.path.split(u.path)
+
+        repo_path = os.path.join('/srv', repo_name)
+        repo = git.Repo(repo_path)
+        repo.remotes.origin.fetch(prune=True)
+        repo.head.reset(commit='origin/master', index=True, working_tree=True)
+
+        # I don't know how to do this using GitPython yet.
+        os.chdir(repo_path)
+        call(['git', 'submodule', 'update', '--init'])
+
+        obj = repo.head.object
+
+        dt = datetime.datetime.fromtimestamp(obj.committed_date)
+        log.msg('{0!r} now at commit {1} from {2}'.format(repo_path, obj.hexsha, dt.isoformat()))
+
+        return ''
+
+resource = Hook()
