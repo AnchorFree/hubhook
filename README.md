@@ -23,7 +23,7 @@ Create deploy keys as user root.
 sudo -i
 export REPO_NAME=hubhook
 ssh-keygen -b 2048 -C "$REPO_NAME deploy key" -f ~/.ssh/${REPO_NAME}_deploy_key
-cat ~/.ssh/~{REPO_NAME}_deploy_key
+cat ~/.ssh/{REPO_NAME}_deploy_key
 ```
 
 Add the public key to your repository's deploy keys at https://github.com/AnchorFree/hubhook/settings/keys
