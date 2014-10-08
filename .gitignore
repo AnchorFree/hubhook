@@ -52,3 +52,5 @@ coverage.xml
 # Sphinx documentation
 docs/_build/
 
+# PyCharm is awesome, but we don't need to track the project files
+.idea/
