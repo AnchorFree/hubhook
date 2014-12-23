@@ -24,6 +24,9 @@ class Hook(Resource):
         u = urlparse(p['repository']['url'])
         owner, repo_name = os.path.split(u.path)
 
+        if repo_name.endswith('.git'):
+            repo_name = repo_name[:-4]
+
         repo_path = os.path.join('/srv', repo_name)
         repo = git.Repo(repo_path)
         repo.remotes.origin.fetch(prune=True)
